@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Cartas contra la humanidad (beta 1.3)</title>
+	<!-- Carga CSS -->
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+<body>
+	<!-- Página principal -->
+	<div id="inicio-app">
+    	<h1>Cartas</br> Contra la</br>Humanidad</h1>
+    	<h2>Un juego de fiesta </br>para gente horrible</h2>
+    	<div id="formularioInicio">
+    		<p>Numero de Jugadores (de 3 a 15)</p>
+			<input id="numJugadores" class="input1" type="number" min="3" max="15" value="3">
+			<button id="crearPartida" class="btn1" onclick="creaPartida()">Crear partida</button>
+		</div>
+	</div>
+	<!-- Crear jugadores -->
+	<div id="crear-jugadores" class="oculto">
+    	<p class="tituloTop">Cartas Contra la Humanidad</p>
+    	</br>
+
+    	<p>Numero de Rondas (de 2 a 10)</p>
+    	<input id="numRondas" class="input1" type="number" min="2" max="10" value="10">
+
+    	<div id="formularioJugadores"></div>
+		<button id="crearPartida" class="btn1" onclick="creaJugadores()">Crear partida</button>
+	</div>
+	<!-- Partida -->
+	<div id="pantallaGenerica" class="oculto">
+    	<p class="tituloTop">Cartas Contra la Humanidad</p>
+    	</br>
+    	<div id="divContenido"></div>
+	</div>
+	<!-- Fin partida -->
+	<div id="fin" class="oculto">
+    	<p class="tituloTop">Cartas Contra la Humanidad</p>
+    	</br>
+    	<div id="puntuaciones"></div>
+    	<button class="btn1" onclick="reiniciarJuego()">Nueva partida</button>
+	</div>
+
+	<!-- Carga JS -->
+	<script type="text/javascript" src="main.js"></script>
+	<!-- Carga Componentes -->
+	<script type="text/javascript" src="componentes/cartasPregunta.js"></script>
+	<script type="text/javascript" src="componentes/cartasRespuesta.js"></script>
+</body>
+</html>
