@@ -34,38 +34,38 @@
 **Files:** crear `package.json`, `package-lock.json`, `eslint.config.cjs`, `.prettierrc.json`, `.prettierignore`, `.gitattributes`, `.c8rc.json`; modificar `.gitignore`, `tests/helpers/dom.cjs`, `tests/game.test.cjs` y los archivos que requieran formato o declaraciones explícitas de globales.
 **Interfaces:** scripts `lint`, `format`, `format:check`, `test:unit`, `test:coverage`; `npm test` ejecuta unitarios con cobertura. Conservar `loadGame()` y `configure(game,count,rounds)`.
 
-- [ ] Registrar baseline de unitarios. Crear manifest y configuraciones, instalar dependencias de desarrollo compatibles y generar lockfile.
-- [ ] Ejecutar lint, comprobación de formato y cobertura contra el estado previo a sus correcciones; registrar fallos reales sin ocultarlos.
-- [ ] Configurar entornos browser/script y Node/CommonJS; declarar las funciones usadas por HTML y las variables compartidas entre scripts sin desactivar globalmente no-undef ni no-unused-vars.
-- [ ] Corregir avisos legítimos y aplicar Prettier con LF; ignorar solo archivos generados/dependencias. No cambiar reglas del juego ni textos de los mazos.
-- [ ] Dar rutas absolutas a node:vm. Ejecutar c8 con inclusión de main.js, all y check-coverage; exigir 80 en las cuatro métricas. Escribir casos sobre comportamiento real para cubrir ramas faltantes antes de cualquier corrección de producción.
-- [ ] Comprobar salidas negativas: ESLint con referencia indefinida por stdin, Prettier con entrada mal formateada y c8 check-coverage con umbral superior al informe actual. Cada control debe devolver código distinto de cero sin dejar archivos de prueba en producción.
-- [ ] Ejecutar `npm run lint`, `npm run format:check`, `npm test`; resultados esperados: sin avisos/errores, main.js presente y cuatro métricas >=80. Confirmar que un archivo no ejecutado no desaparece del informe.
-- [ ] Commit de herramientas y pruebas, sin publicar hasta completar los controles restantes.
+- [x] Registrar baseline de unitarios. Crear manifest y configuraciones, instalar dependencias de desarrollo compatibles y generar lockfile.
+- [x] Ejecutar lint, comprobación de formato y cobertura contra el estado previo a sus correcciones; registrar fallos reales sin ocultarlos.
+- [x] Configurar entornos browser/script y Node/CommonJS; declarar las funciones usadas por HTML y las variables compartidas entre scripts sin desactivar globalmente no-undef ni no-unused-vars.
+- [x] Corregir avisos legítimos y aplicar Prettier con LF; ignorar solo archivos generados/dependencias. No cambiar reglas del juego ni textos de los mazos.
+- [x] Dar rutas absolutas a node:vm. Ejecutar c8 con inclusión de main.js, all y check-coverage; exigir 80 en las cuatro métricas. Escribir casos sobre comportamiento real para cubrir ramas faltantes antes de cualquier corrección de producción.
+- [x] Comprobar salidas negativas: ESLint con referencia indefinida por stdin, Prettier con entrada mal formateada y c8 check-coverage con umbral superior al informe actual. Cada control debe devolver código distinto de cero sin dejar archivos de prueba en producción.
+- [x] Ejecutar `npm run lint`, `npm run format:check`, `npm test`; resultados esperados: sin avisos/errores, main.js presente y cuatro métricas >=80. Confirmar que un archivo no ejecutado no desaparece del informe.
+- [x] Commit de herramientas y pruebas, sin publicar hasta completar los controles restantes.
 
 ### Task 2: E2E obligatorios con Playwright
 
 **Files:** crear `playwright.config.cjs`, `scripts/serve.cjs`, `tests/e2e/game.spec.cjs`; reemplazar/eliminar `tests/browser.test.cjs`; actualizar scripts npm y `.gitignore`.
 **Interfaces:** `npm run test:e2e` ejecuta Chromium escritorio y móvil sin skips; `npm run serve` sirve solo archivos públicos en 127.0.0.1:4173. Playwright inicia/detiene el servidor con webServer y usa baseURL http://127.0.0.1:4173.
 
-- [ ] Escribir E2E antes de configurar su ejecución completa: errores y foco, quince jugadores, selección sin envío, cambio de carta, confirmación por teclado, privacidad entre turnos, voto sin nombres y partida completa de dos rondas hasta nueva partida. Acceder mediante roles, etiquetas y estado visible.
-- [ ] Ejecutar y registrar los fallos de infraestructura iniciales; añadir Playwright como dependencia de desarrollo, configurarlo y descargar Chromium.
-- [ ] Crear servidor HTTP de desarrollo con allowlist de index.html, style.css, main.js y dos mazos; responder 404 a rutas privadas, 405 a métodos no admitidos y errores controlados al leer archivos. Probar esas respuestas con peticiones HTTP reales.
-- [ ] Añadir proyectos escritorio 1440x1000 y móvil 360x800, cobertura de viewport 768, movimiento reducido y nombres/textos largos usando inputs o contenido real. No reemplazar cartas ni llamar funciones internas para simular una partida.
-- [ ] Configurar testDir aislado, forbidOnly en CI, reintentos solo en CI, trazas/capturas en fallos e informe HTML. Eliminar el smoke test opcional y su documentación obsoleta.
-- [ ] Ejecutar `npm run test:e2e`: todos los escenarios deben pasar en ambos proyectos sin skips; ejecutar también lint, formato y unitarios con cobertura.
-- [ ] Commit de E2E y servidor de desarrollo.
+- [x] Escribir E2E antes de configurar su ejecución completa: errores y foco, quince jugadores, selección sin envío, cambio de carta, confirmación por teclado, privacidad entre turnos, voto sin nombres y partida completa de dos rondas hasta nueva partida. Acceder mediante roles, etiquetas y estado visible.
+- [x] Ejecutar y registrar los fallos de infraestructura iniciales; añadir Playwright como dependencia de desarrollo, configurarlo y descargar Chromium.
+- [x] Crear servidor HTTP de desarrollo con allowlist de index.html, style.css, main.js y dos mazos; responder 404 a rutas privadas, 405 a métodos no admitidos y errores controlados al leer archivos. Probar esas respuestas con peticiones HTTP reales.
+- [x] Añadir proyectos escritorio 1440x1000 y móvil 360x800, cobertura de viewport 768, movimiento reducido y nombres/textos largos usando inputs o contenido real. No reemplazar cartas ni llamar funciones internas para simular una partida.
+- [x] Configurar testDir aislado, forbidOnly en CI, reintentos solo en CI, trazas/capturas en fallos e informe HTML. Eliminar el smoke test opcional y su documentación obsoleta.
+- [x] Ejecutar `npm run test:e2e`: todos los escenarios deben pasar en ambos proyectos sin skips; ejecutar también lint, formato y unitarios con cobertura.
+- [x] Commit de E2E y servidor de desarrollo.
 
 ### Task 3: Workflow, documentación y verificación remota
 
 **Files:** crear `.github/workflows/quality.yml`, `README.md`; actualizar `docs/visual-checklist.md` y los documentos/formatos que correspondan.
 **Interfaces:** jobs estables `lint-format`, `unit-coverage`, `e2e`; los comandos son exactamente los scripts npm de tareas 1 y 2.
 
-- [ ] Crear workflow para push, pull_request y workflow_dispatch, Ubuntu y Node 22, npm ci y caché npm; permisos contents: read y concurrency por referencia.
-- [ ] Job lint-format ejecuta lint y format:check; unit-coverage ejecuta test:coverage y sube coverage; e2e instala Chromium con `npx playwright install --with-deps chromium`, ejecuta test:e2e y sube playwright-report/test-results incluso en fallos, sin continue-on-error.
-- [ ] Documentar instalación, comandos, cuatro umbrales, ubicación de informes y diferencia entre workflow fallido y reglas de protección. Explicar controles recomendados para master sin modificar su configuración.
-- [ ] Ejecutar `npm ci`, `npm run lint`, `npm run format:check`, `npm run test:coverage`, `npm run test:e2e` y `git diff --check`; todos deben terminar en cero. Revisar workflow contra esas órdenes y confirmar que informes/dependencias están ignorados.
-- [ ] Revisar el diff completo frente a la especificación, con revisión propia si no hay herramienta de subagentes. Registrar cualquier limitación o desviación.
+- [x] Crear workflow para push, pull_request y workflow_dispatch, Ubuntu y Node 22, npm ci y caché npm; permisos contents: read y concurrency por referencia.
+- [x] Job lint-format ejecuta lint y format:check; unit-coverage ejecuta test:coverage y sube coverage; e2e instala Chromium con `npx playwright install --with-deps chromium`, ejecuta test:e2e y sube playwright-report/test-results incluso en fallos, sin continue-on-error.
+- [x] Documentar instalación, comandos, cuatro umbrales, ubicación de informes y diferencia entre workflow fallido y reglas de protección. Explicar controles recomendados para master sin modificar su configuración.
+- [x] Ejecutar `npm ci`, `npm run lint`, `npm run format:check`, `npm run test:coverage`, `npm run test:e2e` y `git diff --check`; todos deben terminar en cero. Revisar workflow contra esas órdenes y confirmar que informes/dependencias están ignorados.
+- [x] Revisar el diff completo frente a la especificación, con revisión propia si no hay herramienta de subagentes. Registrar cualquier limitación o desviación.
 - [ ] Commit y push a version-0.1; actualizar PR #1 con controles y cobertura reales. Consultar la ejecución de Actions y comunicar su estado real; corregir fallos si los hay sin relajar controles.
 
 ## Revisión del plan
