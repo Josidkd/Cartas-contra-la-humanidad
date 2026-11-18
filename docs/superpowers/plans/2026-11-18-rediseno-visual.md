@@ -11,6 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-11-18-rediseno-visual-design.md`
 
 ## Global Constraints
+
 - HTML, CSS y JavaScript sin frameworks ni dependencias de ejecución nuevas.
 - Conservar `componentes/cartasPregunta.js` y `componentes/cartasRespuesta.js`.
 - Configuración de 3–15 jugadores y 2–10 rondas.
@@ -20,6 +21,7 @@
 - Insertar nombres y cartas como texto seguro; no interpretar nombres de usuario como HTML.
 
 ## Review Focus
+
 - Quince nombres, nombres largos y contenido HTML literal: formulario utilizable sin ejecutar contenido.
 - Cambio de selección y doble confirmación: una sola respuesta consumida por turno.
 - Ronda final y empates: clasificación correcta, sin pantallas de partida superpuestas.
@@ -29,6 +31,7 @@
 ---
 
 ### Task 1: Estructura editorial y configuración
+
 **Files:** modificar `index.html`, `style.css`, `main.js`; crear `tests/game.test.cjs`.
 **Interfaces:** conservar `creaPartida()`, `creaFormularioJugadores(numero)`, `creaJugadores()` y `reiniciarJuego()`; agregar `escapaHTML(texto)` para plantillas y `muestraPantalla(id)` para visibilidad exclusiva.
 
@@ -40,6 +43,7 @@
 - [x] Ejecutar las pruebas; verificar quince campos y mensajes de error en el DOM de prueba.
 
 ### Task 2: Turnos, cartas y confirmación
+
 **Files:** modificar `main.js`, `style.css`, `tests/game.test.cjs`.
 **Interfaces:** conservar `controlPartida()`, `iniciaTurno(jugador,tipo)`, `turnoZar()`, `turnoJugador(jugador)`, `vota(jugador,carta)`, `votaRespuestas()`. Agregar `seleccionaRespuesta(jugador,carta)` y `seleccionaGanador(jugador)`; seleccionar solo actualiza estado/DOM, confirmar llama al flujo existente una vez.
 
@@ -51,6 +55,7 @@
 - [x] Ejecutar pruebas, incluyendo paso al siguiente jugador sin conservar la mano anterior en el contenido visible.
 
 ### Task 3: Resultado de ronda y clasificación
+
 **Files:** modificar `main.js`, `style.css`, `tests/game.test.cjs`; crear `docs/visual-checklist.md` y `.gitignore` si no existe.
 **Interfaces:** `ganaRonda(jugador)` registra una sola victoria y muestra resultado; `cambioRonda()` continúa únicamente desde ese resultado; `muestraClasificacion()` ordena copia de jugadores sin alterar el orden de turnos.
 
@@ -63,4 +68,5 @@
 - [x] Revisar el diff contra la especificación y presentar los cambios sin incluir los archivos locales del servidor de maquetas.
 
 ## Revisión del plan
+
 Cobertura: portada/configuración en tarea 1, turnos/selección en tarea 2, resultados/final en tarea 3. Las interfaces conservan el flujo actual; no se cambian los mazos ni se introduce infraestructura. Los cinco riesgos de Review Focus tienen pruebas funcionales o una comprobación visual explícita; no se confunde un test de DOM mínimo con una validación de navegador.

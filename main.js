@@ -1,3 +1,6 @@
+/* exported creaPartida, creaJugadores, turnoZar, turnoJugador, seleccionaRespuesta, vota,
+   votaRespuestas, seleccionaGanador, ganaRonda, cambioRonda, reiniciarJuego */
+// Los manejadores anteriores son la API de los atributos onclick/onsubmit de la interfaz.
 // Estado de una partida local: el orden del array determina los turnos.
 let numeroJugadores;
 let jugadores = [];
@@ -15,17 +18,27 @@ let jugadorActivo = null;
 let seleccion = null;
 
 function escapaHTML(texto) {
-  return String(texto).replace(/[&<>"']/g, caracter => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  })[caracter]);
+  return String(texto).replace(
+    /[&<>"']/g,
+    (caracter) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[caracter],
+  );
 }
 
 function muestraPantalla(id) {
-  document.querySelectorAll('[data-screen]').forEach(pantalla => {
+  document.querySelectorAll('[data-screen]').forEach((pantalla) => {
     pantalla.hidden = pantalla.id !== id;
   });
   if (id === 'crear-jugadores' || id === 'inicio-app') {
-    const titulo = document.getElementById(id === 'crear-jugadores' ? 'titulo-jugadores' : 'titulo-inicio');
+    const titulo = document.getElementById(
+      id === 'crear-jugadores' ? 'titulo-jugadores' : 'titulo-inicio',
+    );
     titulo.focus();
   }
 }
@@ -40,7 +53,9 @@ function errorCampo(id, mensaje, campo) {
 
 function enteroEnRango(valor, minimo, maximo) {
   const numero = Number(valor);
-  return String(valor).trim() !== '' && Number.isInteger(numero) && numero >= minimo && numero <= maximo;
+  return (
+    String(valor).trim() !== '' && Number.isInteger(numero) && numero >= minimo && numero <= maximo
+  );
 }
 
 function creaPartida() {
@@ -74,14 +89,19 @@ function creaJugadores() {
   }
   campoRondas.removeAttribute('aria-invalid');
   const campos = Array.from(document.getElementsByName('inputNombre'));
-  campos.forEach(campo => campo.removeAttribute('aria-invalid'));
-  const vacio = campos.find(campo => !campo.value.trim());
+  campos.forEach((campo) => campo.removeAttribute('aria-invalid'));
+  const vacio = campos.find((campo) => !campo.value.trim());
   if (vacio) {
     errorCampo('error-jugadores', 'Todos los jugadores necesitan un nombre.', vacio);
     return;
   }
   document.getElementById('error-jugadores').textContent = '';
-  jugadores = campos.map(campo => ({ nombre: campo.value.trim(), rondasGanadas: 0, cartas: [], estadoRonda: false }));
+  jugadores = campos.map((campo) => ({
+    nombre: campo.value.trim(),
+    rondasGanadas: 0,
+    cartas: [],
+    estadoRonda: false,
+  }));
   rondas = totalRondas = Number(campoRondas.value);
   empiezaPartida();
 }
@@ -102,11 +122,16 @@ function empiezaPartida() {
 
 // Elegir de un conjunto disponible evita reintentos y respeta el tamaño real del mazo.
 function reparteCarta(nJugador) {
-  let disponibles = cartasRespuesta.map((_, i) => i).filter(i => !cartasRespuestaUsadas.includes(i));
+  let disponibles = cartasRespuesta
+    .map((_, i) => i)
+    .filter((i) => !cartasRespuestaUsadas.includes(i));
   if (!disponibles.length) {
-    cartasRespuestaUsadas = jugadores.flatMap(jugador => jugador.cartas);
-    disponibles = cartasRespuesta.map((_, i) => i).filter(i => !cartasRespuestaUsadas.includes(i));
-    document.getElementById('aviso-juego').textContent = 'El mazo se ha barajado de nuevo. Algunas respuestas pueden repetirse.';
+    cartasRespuestaUsadas = jugadores.flatMap((jugador) => jugador.cartas);
+    disponibles = cartasRespuesta
+      .map((_, i) => i)
+      .filter((i) => !cartasRespuestaUsadas.includes(i));
+    document.getElementById('aviso-juego').textContent =
+      'El mazo se ha barajado de nuevo. Algunas respuestas pueden repetirse.';
   }
   const carta = disponibles[Math.floor(Math.random() * disponibles.length)];
   cartasRespuestaUsadas.push(carta);
@@ -115,13 +140,16 @@ function reparteCarta(nJugador) {
 
 function reparteCartaZar() {
   if (cartasPreguntaUsadas.length === cartasPregunta.length) cartasPreguntaUsadas = [];
-  const disponibles = cartasPregunta.map((_, i) => i).filter(i => !cartasPreguntaUsadas.includes(i));
+  const disponibles = cartasPregunta
+    .map((_, i) => i)
+    .filter((i) => !cartasPreguntaUsadas.includes(i));
   cartaZar = disponibles[Math.floor(Math.random() * disponibles.length)];
   cartasPreguntaUsadas.push(cartaZar);
 }
 
 function actualizaCabecera() {
-  document.getElementById('estado-partida').textContent = `Ronda ${totalRondas - rondas + 1} / ${totalRondas} · Zar: ${jugadores[jugadorZar].nombre}`;
+  document.getElementById('estado-partida').textContent =
+    `Ronda ${totalRondas - rondas + 1} / ${totalRondas} · Zar: ${jugadores[jugadorZar].nombre}`;
 }
 
 function renderContenido(html) {
@@ -198,9 +226,16 @@ function turnoJugador(nJugador) {
   if (fase !== 'entrega-jugador' || jugadorActivo !== nJugador) return;
   fase = 'mano';
   seleccion = null;
-  const respuestas = jugadores[nJugador].cartas.map((carta, i) => cartaRespuestaHTML(
-    `carta-${carta}`, cartasRespuesta[carta], `seleccionaRespuesta(${nJugador},${carta})`, i + 1
-  )).join('');
+  const respuestas = jugadores[nJugador].cartas
+    .map((carta, i) =>
+      cartaRespuestaHTML(
+        `carta-${carta}`,
+        cartasRespuesta[carta],
+        `seleccionaRespuesta(${nJugador},${carta})`,
+        i + 1,
+      ),
+    )
+    .join('');
   renderContenido(`<div class="game-top"><div><p class="eyebrow">Tu turno</p>
     <h1 id="titulo-turno" class="screen-title" tabindex="-1">${escapaHTML(jugadores[nJugador].nombre)}, haz lo tuyo.</h1>
     <p class="intro">Elige la respuesta más horrible. Sin presión.</p></div><span class="pill">Solo tú puedes ver tu mano</span></div>
@@ -212,7 +247,7 @@ function turnoJugador(nJugador) {
 }
 
 function marcaSeleccion(id, texto) {
-  document.querySelectorAll('[data-card]').forEach(carta => {
+  document.querySelectorAll('[data-card]').forEach((carta) => {
     const marcada = carta.id === id;
     carta.classList.toggle('selected', marcada);
     carta.setAttribute('aria-pressed', String(marcada));
@@ -222,13 +257,15 @@ function marcaSeleccion(id, texto) {
 }
 
 function seleccionaRespuesta(nJugador, carta) {
-  if (fase !== 'mano' || jugadorActivo !== nJugador || !jugadores[nJugador].cartas.includes(carta)) return;
+  if (fase !== 'mano' || jugadorActivo !== nJugador || !jugadores[nJugador].cartas.includes(carta))
+    return;
   seleccion = carta;
   marcaSeleccion(`carta-${carta}`, cartasRespuesta[carta]);
 }
 
 function vota(nJugador, carta) {
-  if (fase !== 'mano' || jugadorActivo !== nJugador || seleccion === null || seleccion !== carta) return;
+  if (fase !== 'mano' || jugadorActivo !== nJugador || seleccion === null || seleccion !== carta)
+    return;
   const indice = jugadores[nJugador].cartas.indexOf(carta);
   if (indice < 0 || jugadores[nJugador].estadoRonda) return;
   fase = 'entrega-jugador'; // Bloquea una segunda confirmación antes de cambiar de pantalla.
@@ -254,7 +291,9 @@ function avisoVoto() {
 function respuestaCompleta(carta) {
   const pregunta = cartasPregunta[cartaZar];
   const respuesta = cartasRespuesta[carta];
-  return pregunta.includes('______') ? pregunta.replace('______', () => respuesta) : `${pregunta} ${respuesta}`;
+  return pregunta.includes('______')
+    ? pregunta.replace('______', () => respuesta)
+    : `${pregunta} ${respuesta}`;
 }
 
 function votaRespuestas() {
@@ -267,9 +306,16 @@ function votaRespuestas() {
     const j = Math.floor(Math.random() * (i + 1));
     [candidatas[i], candidatas[j]] = [candidatas[j], candidatas[i]];
   }
-  const respuestas = candidatas.map(({ carta, jugador }, i) => cartaRespuestaHTML(
-    `voto-${jugador}`, respuestaCompleta(carta), `seleccionaGanador(${jugador})`, i + 1
-  )).join('');
+  const respuestas = candidatas
+    .map(({ carta, jugador }, i) =>
+      cartaRespuestaHTML(
+        `voto-${jugador}`,
+        respuestaCompleta(carta),
+        `seleccionaGanador(${jugador})`,
+        i + 1,
+      ),
+    )
+    .join('');
   renderContenido(`<p class="eyebrow">El zar tiene la última palabra</p>
     <h1 id="titulo-turno" class="screen-title" tabindex="-1">¿Cuál se lleva la ronda?</h1>
     <p class="intro">Lee las combinaciones y elige tu favorita. Aquí no hay respuestas correctas.</p>
@@ -285,7 +331,13 @@ function seleccionaGanador(nJugador) {
 }
 
 function ganaRonda(nJugador) {
-  if (fase !== 'votacion' || seleccion === null || seleccion !== nJugador || !respuestasJugador.includes(nJugador)) return;
+  if (
+    fase !== 'votacion' ||
+    seleccion === null ||
+    seleccion !== nJugador ||
+    !respuestasJugador.includes(nJugador)
+  )
+    return;
   fase = 'resultado';
   seleccion = null;
   const ganador = jugadores[nJugador];
@@ -304,7 +356,9 @@ function cambioRonda() {
   fase = 'transicion';
   seleccion = null;
   preguntaLeida = false;
-  jugadores.forEach(jugador => { jugador.estadoRonda = false; });
+  jugadores.forEach((jugador) => {
+    jugador.estadoRonda = false;
+  });
   respuestasJugador = [];
   respuestasCarta = [];
   rondas--;
@@ -320,18 +374,23 @@ function muestraClasificacion() {
   seleccion = null;
   jugadorActivo = null;
   const ordenados = [...jugadores].sort((a, b) => b.rondasGanadas - a.rondasGanadas);
-  const ganadores = ordenados.filter(jugador => jugador.rondasGanadas === ordenados[0].rondasGanadas);
+  const ganadores = ordenados.filter(
+    (jugador) => jugador.rondasGanadas === ordenados[0].rondasGanadas,
+  );
   const empate = ganadores.length > 1;
-  const filas = ordenados.map((jugador, i) => {
-    const puesto = ordenados.findIndex(otro => otro.rondasGanadas === jugador.rondasGanadas) + 1;
-    return `<li class="leaderboard-row ${i < ganadores.length ? 'leaderboard-winner' : ''}">
+  const filas = ordenados
+    .map((jugador, i) => {
+      const puesto =
+        ordenados.findIndex((otro) => otro.rondasGanadas === jugador.rondasGanadas) + 1;
+      return `<li class="leaderboard-row ${i < ganadores.length ? 'leaderboard-winner' : ''}">
       <span class="leaderboard-rank">${String(puesto).padStart(2, '0')}</span>
       <span class="leaderboard-name">${escapaHTML(jugador.nombre)}</span>
       <span class="leaderboard-score">${jugador.rondasGanadas} <span>${jugador.rondasGanadas === 1 ? 'punto' : 'puntos'}</span></span></li>`;
-  }).join('');
+    })
+    .join('');
   document.getElementById('puntuaciones').innerHTML = `<p class="eyebrow">Fin de la partida</p>
     <h1 id="titulo-final" class="screen-title" tabindex="-1">${empate ? 'Empate en lo más alto.' : 'La peor persona.<br>La mejor puntuación.'}</h1>
-    <p class="intro">${ganadores.map(jugador => escapaHTML(jugador.nombre)).join(' y ')} ${empate ? 'comparten la victoria' : 'se lleva la victoria'}. La dignidad no la recupera nadie.</p>
+    <p class="intro">${ganadores.map((jugador) => escapaHTML(jugador.nombre)).join(' y ')} ${empate ? 'comparten la victoria' : 'se lleva la victoria'}. La dignidad no la recupera nadie.</p>
     <ol class="leaderboard" aria-label="Clasificación por puntos">${filas}</ol>`;
   document.getElementById('divContenido').innerHTML = '';
   document.getElementById('estado-partida').textContent = 'Partida terminada';

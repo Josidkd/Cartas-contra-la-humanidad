@@ -11,7 +11,9 @@ function openHand() {
 
 function openVote() {
   const game = openHand();
-  game.run('seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); votaRespuestas()');
+  game.run(
+    'seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); votaRespuestas()',
+  );
   return game;
 }
 
@@ -74,7 +76,8 @@ test('rejects whitespace-only names and focuses the invalid field', () => {
 test('renders a name as escaped text rather than HTML in the turn screen', () => {
   const game = loadGame();
   configure(game);
-  game.document.getElementsByName('inputNombre')[0].value = '  <img src=x onerror="alert(1)"> & \'Ana\'  ';
+  game.document.getElementsByName('inputNombre')[0].value =
+    '  <img src=x onerror="alert(1)"> & \'Ana\'  ';
   game.run('creaJugadores()');
   assert.equal(game.run('jugadores[0].nombre'), '<img src=x onerror="alert(1)"> & \'Ana\'');
   const html = game.el('divContenido').innerHTML;
@@ -87,13 +90,17 @@ test('renders a name as escaped text rather than HTML in the turn screen', () =>
 
 test('dealing can use the last card of each real deck', () => {
   const game = loadGame();
-  game.run('jugadores = [{ cartas: [] }]; Math.random = () => 0.999999; reparteCarta(0); reparteCartaZar(0)');
+  game.run(
+    'jugadores = [{ cartas: [] }]; Math.random = () => 0.999999; reparteCarta(0); reparteCartaZar(0)',
+  );
   assert.equal(game.run('jugadores[0].cartas[0]'), game.run('cartasRespuesta.length - 1'));
   assert.equal(game.run('cartaZar'), game.run('cartasPregunta.length - 1'));
 });
 test('recycling an exhausted response deck excludes cards still held by players', () => {
   const game = loadGame();
-  game.run('jugadores = [{ cartas: [0] }, { cartas: [1] }]; cartasRespuestaUsadas = cartasRespuesta.map((_, i) => i); Math.random = () => 0.5; reparteCarta(0)');
+  game.run(
+    'jugadores = [{ cartas: [0] }, { cartas: [1] }]; cartasRespuestaUsadas = cartasRespuesta.map((_, i) => i); Math.random = () => 0.5; reparteCarta(0)',
+  );
   assert.equal(game.run('jugadores[0].cartas.length'), 2);
   assert.equal(game.run('jugadores[0].cartas[1] > 1'), true);
   assert.equal(game.alerts.length, 0);
@@ -110,16 +117,24 @@ test('opening a hand shows ten cards, disables confirmation and does not spend t
 test('selecting and changing a card leaves exactly one marked without consuming a response', () => {
   const game = openHand();
   const before = game.json('jugadores[1].cartas');
-  game.run('seleccionaRespuesta(1, jugadores[1].cartas[0]); seleccionaRespuesta(1, jugadores[1].cartas[1])');
+  game.run(
+    'seleccionaRespuesta(1, jugadores[1].cartas[0]); seleccionaRespuesta(1, jugadores[1].cartas[1])',
+  );
   assert.deepEqual(game.json('jugadores[1].cartas'), before);
   assert.equal(game.run('respuestasCarta.length'), 0);
   assert.equal(game.run('jugadores[1].estadoRonda'), false);
-  const marked = game.document.querySelectorAll('[data-card]').filter(el => el.classList.contains('selected'));
+  const marked = game.document
+    .querySelectorAll('[data-card]')
+    .filter((el) => el.classList.contains('selected'));
   assert.equal(marked.length, 1);
   assert.equal(marked[0].id, `carta-${before[1]}`);
   assert.equal(marked[0].getAttribute('aria-pressed'), 'true');
   assert.equal(game.el('confirmar-carta').disabled, false);
-  assert.ok(game.el('seleccion-estado').textContent.includes(game.run('cartasRespuesta[jugadores[1].cartas[1]]')));
+  assert.ok(
+    game
+      .el('seleccion-estado')
+      .textContent.includes(game.run('cartasRespuesta[jugadores[1].cartas[1]]')),
+  );
 });
 test('confirmation consumes exactly one card, refills the hand and hides it for the next player', () => {
   const game = openHand();
@@ -135,19 +150,30 @@ test('confirmation consumes exactly one card, refills the hand and hides it for 
 });
 test('unselected, wrong-player and out-of-hand confirmations cannot submit', () => {
   const game = openHand();
-  game.run('vota(1, jugadores[1].cartas[0]); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); seleccionaRespuesta(1, -1); vota(1, -1)');
+  game.run(
+    'vota(1, jugadores[1].cartas[0]); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); seleccionaRespuesta(1, -1); vota(1, -1)',
+  );
   assert.equal(game.run('respuestasCarta.length'), 0);
   assert.equal(game.run('jugadores[1].estadoRonda'), false);
 });
 test('the next hand starts without a previous selection', () => {
   const game = openHand();
-  game.run('seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2)');
+  game.run(
+    'seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2)',
+  );
   assert.equal(game.el('confirmar-carta').disabled, true);
-  assert.equal(game.document.querySelectorAll('[data-card]').filter(el => el.getAttribute('aria-pressed') === 'true').length, 0);
+  assert.equal(
+    game.document
+      .querySelectorAll('[data-card]')
+      .filter((el) => el.getAttribute('aria-pressed') === 'true').length,
+    0,
+  );
 });
 test('zar selects anonymously without awarding a point before confirmation', () => {
   const game = openHand();
-  game.run('seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); votaRespuestas()');
+  game.run(
+    'seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); votaRespuestas()',
+  );
   const html = game.el('divContenido').innerHTML;
   assert.equal(game.document.querySelectorAll('[data-card]').length, 2);
   assert.doesNotMatch(html, /Ana|Luis/);
@@ -161,7 +187,9 @@ test('zar selects anonymously without awarding a point before confirmation', () 
 
 test('anonymous voting shuffles display order without changing response ownership', () => {
   const game = openHand();
-  game.run('seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); Math.random = () => 0; votaRespuestas()');
+  game.run(
+    'seleccionaRespuesta(1, jugadores[1].cartas[0]); vota(1, jugadores[1].cartas[0]); turnoJugador(2); seleccionaRespuesta(2, jugadores[2].cartas[0]); vota(2, jugadores[2].cartas[0]); Math.random = () => 0; votaRespuestas()',
+  );
   const html = game.el('divContenido').innerHTML;
   assert.ok(html.indexOf('id="voto-2"') < html.indexOf('id="voto-1"'));
   assert.deepEqual(game.json('respuestasJugador'), [1, 2]);
@@ -178,7 +206,11 @@ test('winner confirmation awards one point and shows the result before advancing
   assert.equal(game.run('rondas'), 2);
   assert.equal(game.run('fase'), 'resultado');
   assert.match(game.el('divContenido').innerHTML, /Ana/);
-  assert.ok(game.el('divContenido').innerHTML.includes(game.run(`escapaHTML(${JSON.stringify(winningText)})`)));
+  assert.ok(
+    game
+      .el('divContenido')
+      .innerHTML.includes(game.run(`escapaHTML(${JSON.stringify(winningText)})`)),
+  );
   assert.equal(game.alerts.length, 0);
 });
 test('winner cannot be confirmed without selecting an eligible response', () => {
@@ -211,7 +243,9 @@ test('final round shows only the final screen and preserves the player turn orde
 test('classification is descending, recognises all tied winners and escapes their names', () => {
   const game = loadGame();
   configure(game);
-  game.run('creaJugadores(); jugadores[0].rondasGanadas = 1; jugadores[1].rondasGanadas = 3; jugadores[2].rondasGanadas = 3; jugadores[1].nombre = "<b>Ana</b>"; muestraClasificacion()');
+  game.run(
+    'creaJugadores(); jugadores[0].rondasGanadas = 1; jugadores[1].rondasGanadas = 3; jugadores[2].rondasGanadas = 3; jugadores[1].nombre = "<b>Ana</b>"; muestraClasificacion()',
+  );
   const html = game.el('puntuaciones').innerHTML;
   assert.match(html, /Empate/);
   assert.match(html, /&lt;b&gt;Ana&lt;\/b&gt;/);
@@ -238,7 +272,12 @@ test('fifteen players can complete ten rounds with valid hands and exactly one w
     }`);
   assert.equal(game.run('rondas'), 0);
   assert.equal(game.run('jugadores.reduce((suma, j) => suma + j.rondasGanadas, 0)'), 10);
-  assert.equal(game.run('jugadores.every(j => j.cartas.length === 10 && j.cartas.every(c => Number.isInteger(c)))'), true);
+  assert.equal(
+    game.run(
+      'jugadores.every(j => j.cartas.length === 10 && j.cartas.every(c => Number.isInteger(c)))',
+    ),
+    true,
+  );
   assert.equal(game.run('new Set(jugadores.flatMap(j => j.cartas)).size'), 150);
   assert.equal(game.el('fin').hidden, false);
   assert.equal(game.alerts.length, 0);

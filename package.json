@@ -1,0 +1,31 @@
+{
+  "name": "cartas-contra-la-humanidad",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Juego local de cartas para compartir un dispositivo",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test": "npm run test:coverage",
+    "test:unit": "node --test tests/game.test.cjs",
+    "test:coverage": "c8 npm run test:unit"
+  },
+  "overrides": {
+    "test-exclude": {
+      "glob": "^14.0.2",
+      "minimatch": "^11.0.1"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "c8": "11.0.0",
+    "eslint": "9.39.5",
+    "globals": "16.5.0",
+    "prettier": "3.10.1"
+  }
+}
