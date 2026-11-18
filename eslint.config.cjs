@@ -24,4 +24,8 @@ module.exports = [
     files: ['**/*.cjs'],
     languageOptions: { sourceType: 'commonjs', globals: globals.node },
   },
+  {
+    files: ['tests/e2e/**/*.cjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
 ];

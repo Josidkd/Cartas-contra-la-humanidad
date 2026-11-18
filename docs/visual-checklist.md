@@ -1,56 +1,55 @@
-# Verificación del rediseño 0.1
+# Verificación del juego 0.1
 
-## Ejecutar el juego
+## Ejecución
 
-Abrir `index.html` en un navegador. No requiere instalación, compilación ni conexión a Internet. La partida es local: los jugadores comparten el mismo dispositivo.
+El juego sigue siendo estático: se puede abrir `index.html` sin instalar herramientas ni conectarse a Internet. Para desarrollo y E2E se utiliza un servidor HTTP local que solo expone los cinco archivos públicos de la aplicación.
 
-## Pruebas funcionales
-
-Requiere Node.js 20 o posterior:
+## Controles automatizados
 
 ```sh
-node --test tests/game.test.cjs
-node --check main.js
+npm ci
+npx playwright install chromium
+npm run quality
 ```
 
-Las pruebas ejecutan la lógica y los dos mazos reales en un contexto aislado. El documento se sustituye por un doble mínimo: estas pruebas no garantizan por sí solas el diseño en navegador.
+`npm run quality` exige lint, formato, pruebas con cobertura y E2E. Ninguna prueba E2E se omite por falta de navegador: si no se instaló Chromium, el comando falla.
 
-## Prueba opcional en Chrome/Chromium
+### Unitarios y cobertura
 
-Sin paquetes npm. Indicar la ruta de un navegador instalado; con Node 20, habilitar su WebSocket experimental:
+`npm run test:coverage` ejecuta las pruebas node:test del juego y las pruebas HTTP del servidor de desarrollo. El documento de los unitarios se sustituye por un doble mínimo; el juego y sus mazos reales se ejecutan en node:vm con rutas absolutas.
 
-```sh
-BROWSER_BIN='C:/Program Files/Google/Chrome/Application/chrome.exe' node --experimental-websocket --test tests/browser.test.cjs
-```
+c8 incluye `main.js` aunque no se ejecute y exige un mínimo del 80 % por archivo en líneas, sentencias, funciones y ramas. No se cuentan pruebas, herramientas ni mazos de datos para aumentar el porcentaje. Si se añaden módulos de lógica hay que incorporarlos a la inclusión de `.c8rc.json`.
 
-El script abre un perfil temporal, prueba la aplicación real mediante DevTools y cierra ese navegador al acabar. Guarda capturas en `.superpowers/verification/` (ignorado por Git). Sin `BROWSER_BIN` o WebSocket, esta prueba se omite explícitamente.
+Informes en `coverage/`: HTML (`index.html`), LCOV y resumen JSON, además de la salida de consola. Para comprobar cobertura solo se usan unitarios; los E2E no contribuyen al porcentaje.
 
-## Comprobado automáticamente en Chrome
+### E2E
 
-- [x] Portada y mano a 360, 768 y 1440 px, sin desbordamiento horizontal.
-- [x] Formulario de quince jugadores y error con foco en el primer nombre vacío.
-- [x] Nombres con HTML se muestran literalmente, sin crear elementos ni ejecutar código.
-- [x] Diez cartas y botón de confirmación inicialmente desactivado.
-- [x] Selección con fondo distinto, etiqueta visible y `aria-pressed`.
-- [x] Confirmación mediante tecla Enter y foco trasladado a la entrega del dispositivo.
-- [x] Ocultación de la mano anterior después de confirmar.
-- [x] Regreso desde configuración al inicio con foco restaurado y enlace del logotipo válido al abrir el archivo local.
-- [x] Respuestas del zar mezcladas sin alterar la asociación entre cartas y autores (prueba de lógica).
-- [x] Partida completa de quince jugadores, dos rondas, votación, resultado y clasificación.
-- [x] Una sola pantalla visible al terminar.
-- [x] Nombres de 80 caracteres y textos sin espacios de 300 caracteres, sin recortar cartas.
-- [x] Transiciones desactivadas cuando se solicita movimiento reducido.
-- [x] Sin excepciones JavaScript durante ese recorrido.
+`npm run test:e2e` usa Playwright y Chromium descargado, con proyectos escritorio (1440 px) y móvil (360 px). El servidor se inicia y detiene automáticamente. Los escenarios avanzan con botones, formularios y teclado, sin invocar funciones internas del juego.
 
-También se ejecuta en Node una partida de quince jugadores y diez rondas, comprobando diez cartas válidas por mano y diez puntos totales.
+- [x] Configuración inválida de jugadores y rondas; foco en el campo con error.
+- [x] Quince campos de jugador y nombres con HTML tratados como texto literal.
+- [x] Regreso al inicio y navegación desde el logotipo.
+- [x] Diez cartas, selección/cambio visibles y confirmación inicialmente desactivada.
+- [x] Selección en negro, etiqueta «✓ Elegida» y `aria-pressed`.
+- [x] Confirmación con Enter, mano anterior oculta y foco en el siguiente turno.
+- [x] Voto sin nombres de los autores, resultado de ronda y clasificación ordenada.
+- [x] Partida completa de dos rondas con tres jugadores y reinicio.
+- [x] Anchos 360, 768 y 1440 px sin desbordamiento horizontal.
+- [x] Nombres de 80 caracteres y cartas reales sin recorte.
+- [x] Movimiento reducido sin transiciones.
+- [x] Sin errores JavaScript en el recorrido completo.
 
-## Revisión visual
+Los unitarios también cubren una partida de quince jugadores y diez rondas, empates, dobles confirmaciones, pertenencia de las cartas, reciclado de mazo y mezcla anónima de las candidatas.
 
-Capturas de portada de escritorio, selección móvil/escritorio y clasificación móvil revisadas durante la implementación. La selección se identifica por inversión de contraste, borde y etiqueta, sin depender de un color de acento.
+Playwright guarda su informe HTML en `playwright-report/`, y trazas/capturas de fallos en `test-results/`. En CI, `forbidOnly` evita publicar tests enfocados accidentalmente y solo se aplican reintentos limitados a ese entorno.
+
+## GitHub Actions
+
+El workflow de calidad ejecuta los mismos comandos en push y pull requests. Los nombres estables de sus jobs son `lint-format`, `unit-coverage` y `e2e`; consulta README.md para detalles y protección de rama.
 
 ## Comprobaciones manuales pendientes
 
-- [ ] Safari y Firefox, y dispositivos táctiles físicos.
+- [ ] Safari y Firefox, y dispositivos táctiles físicos (la emulación móvil no los sustituye).
 - [ ] Zoom de navegador al 200 % y tamaño de texto del sistema.
 - [ ] Recorrido completo con lector de pantalla y solo tabulador.
-- [ ] Preferencias estéticas finales con el usuario sobre las pantallas no incluidas en la maqueta inicial.
+- [ ] Revisión estética final por el usuario de las pantallas nuevas.
