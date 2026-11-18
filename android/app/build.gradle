@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def releaseSigningConfigured = ['ANDROID_KEYSTORE_PATH', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_ALIAS'].every {
+    System.getenv(it)?.trim()
+}
+
 android {
     namespace = "io.github.josidkd.cartascontralahumanidad"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,11 +20,32 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            release {
+                storeFile file(System.getenv('ANDROID_KEYSTORE_PATH'))
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (releaseSigningConfigured) {
+                signingConfig signingConfigs.release
+            }
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    def releaseTasks = [':app:assembleRelease', ':app:bundleRelease', ':app:packageRelease']
+    if (!releaseSigningConfigured && graph.allTasks.any { releaseTasks.contains(it.path) }) {
+        throw new GradleException('Release signing requires ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_ALIAS')
     }
 }
 

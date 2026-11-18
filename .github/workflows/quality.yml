@@ -92,10 +92,20 @@ jobs:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       - run: npm ci
       - run: npm run android:sync
       - name: Install Android SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Refuse release builds without signing credentials
+        working-directory: android
+        run: |
+          if ./gradlew --no-daemon :app:assembleRelease > "$RUNNER_TEMP/unsigned-release.log" 2>&1; then
+            echo '::error::Release unexpectedly built without signing credentials'
+            exit 1
+          fi
+          grep -F 'Release signing requires ANDROID_KEYSTORE_PATH' "$RUNNER_TEMP/unsigned-release.log"
       - name: Android lint and debug build
         working-directory: android
         run: ./gradlew --no-daemon :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest
