@@ -4,3 +4,8 @@ coverage/
 playwright-report/
 test-results/
 package-lock.json
+dist/
+android/.gradle/
+android/**/build/
+android/app/src/main/assets/
+android/capacitor-cordova-android-plugins/

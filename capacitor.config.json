@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.josidkd.cartascontralahumanidad",
+  "appName": "Cartas contra la humanidad",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#161616"
+  },
+  "server": {
+    "cleartext": false
+  }
+}

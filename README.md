@@ -1,4 +1,4 @@
-# Cartas contra la humanidad · 0.1
+# Cartas contra la humanidad · 0.2.0
 
 Juego local para **3–15 jugadores** que comparten un dispositivo. Preguntas negras, respuestas blancas y una clasificación de dudoso honor.
 
@@ -8,7 +8,7 @@ Abre `index.html` en tu navegador. La aplicación no requiere compilación, inst
 
 ## Desarrollo
 
-Necesitas **Node.js >=20.18** y npm; recomendamos **Node 22**, la versión usada en GitHub Actions.
+Necesitas **Node.js >=22** y npm, también para las herramientas de Capacitor. GitHub Actions utiliza Node 22. No es necesario cambiar el Node global para jugar abriendo `index.html`.
 
 ```sh
 npm ci
