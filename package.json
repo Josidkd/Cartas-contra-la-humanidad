@@ -12,7 +12,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "npm run test:coverage",
-    "test:unit": "node --test tests/game.test.cjs tests/server.test.cjs tests/build-web.test.cjs",
+    "test:unit": "node --test tests/game.test.cjs tests/server.test.cjs tests/build-web.test.cjs tests/android-release.test.cjs",
     "test:coverage": "c8 npm run test:unit",
     "test:e2e": "playwright test",
     "serve": "node scripts/serve.cjs",

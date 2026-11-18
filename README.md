@@ -6,6 +6,12 @@ Juego local para **3–15 jugadores** que comparten un dispositivo. Preguntas ne
 
 Abre `index.html` en tu navegador. La aplicación no requiere compilación, instalación ni conexión a Internet. El contenido de las cartas está dirigido a adultos.
 
+## Android
+
+La versión 0.2 añade un APK firmado para Android 7.0 o posterior, con System WebView actualizado. Descarga el instalador desde [GitHub Releases](https://github.com/Josidkd/Cartas-contra-la-humanidad/releases/tag/v0.2.0).
+
+Consulta [docs/android.md](docs/android.md) para instalación, firma, actualizaciones, copia de seguridad y compilación. La app reutiliza el mismo juego offline; no requiere Google Play ni servicios externos.
+
 ## Desarrollo
 
 Necesitas **Node.js >=22** y npm, también para las herramientas de Capacitor. GitHub Actions utiliza Node 22. No es necesario cambiar el Node global para jugar abriendo `index.html`.
@@ -65,17 +71,20 @@ Las versiones de `glob` y `minimatch` de `test-exclude` se fijan mediante overri
 
 ## GitHub Actions
 
-El workflow [`Quality`](.github/workflows/quality.yml) se ejecuta en cada **push**, **pull request** y ejecución manual. Usa Ubuntu, Node 22 y `npm ci` con el lockfile. Ejecuta tres jobs independientes:
+El workflow [`Quality`](.github/workflows/quality.yml) se ejecuta en cada **push**, **pull request** y ejecución manual. Usa Ubuntu, Node 22 y `npm ci` con el lockfile. Ejecuta tres jobs web independientes y un job Android que depende de ellos:
 
 1. **`lint-format`**: ESLint y Prettier.
 2. **`unit-coverage`**: pruebas y cobertura mínima; adjunta el informe.
 3. **`e2e`**: instala Chromium y sus dependencias, ejecuta escritorio/móvil y adjunta informes y trazas.
+4. **`android-debug`**: después de los controles web, ejecuta lint/build Android y una prueba offline en emulador. No utiliza secretos de release.
 
 Los artefactos se conservan siete días, también cuando las pruebas fallan. Los informes y dependencias locales están excluidos de Git.
 
 ### Impedir fusiones con controles fallidos
 
-Un workflow fallido **no impide por sí solo** fusionar. Para exigirlo, un administrador debe crear una regla de protección/ruleset para `master`, activar los status checks requeridos y seleccionar `lint-format`, `unit-coverage` y `e2e` cuando aparezcan tras la primera ejecución. Es recomendable exigir que la rama esté actualizada y no permitir omitir estos controles.
+Un workflow fallido **no impide por sí solo** fusionar. Para exigirlo, un administrador debe crear una regla de protección/ruleset para `master`, activar los status checks requeridos y seleccionar `lint-format`, `unit-coverage`, `e2e` y `android-debug` cuando aparezcan tras la primera ejecución. Es recomendable exigir que la rama esté actualizada y no permitir omitir estos controles.
+
+El workflow `Android APK` reutiliza esos controles al recibir un tag de versión y publica el APK solo después de validar firma, versión y assets. Sus secretos de firma no se pasan a los checks de PR.
 
 Este cambio añade las comprobaciones, pero **no modifica la protección del repositorio** ni fusiona la PR.
 

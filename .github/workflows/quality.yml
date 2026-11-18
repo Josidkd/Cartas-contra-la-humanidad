@@ -109,6 +109,13 @@ jobs:
       - name: Android lint and debug build
         working-directory: android
         run: ./gradlew --no-daemon :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest
+      - name: Refuse publishing a debug APK
+        run: |
+          if node scripts/verify-apk.cjs android/app/build/outputs/apk/debug/app-debug.apk > "$RUNNER_TEMP/debug-apk-check.log" 2>&1; then
+            echo '::error::Verifier unexpectedly accepted a debug APK'
+            exit 1
+          fi
+          grep -F 'No se publica un APK debug' "$RUNNER_TEMP/debug-apk-check.log"
       - name: Enable KVM on the ephemeral runner
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
