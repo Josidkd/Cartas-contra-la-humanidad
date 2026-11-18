@@ -1,52 +1,161 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Cartas contra la humanidad (beta 1.3)</title>
-	<!-- Carga CSS -->
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<meta name="viewport" content="width=device-width, user-scalable=no">
-</head>
-<body>
-	<!-- Página principal -->
-	<div id="inicio-app">
-    	<h1>Cartas</br> Contra la</br>Humanidad</h1>
-    	<h2>Un juego de fiesta </br>para gente horrible</h2>
-    	<div id="formularioInicio">
-    		<p>Numero de Jugadores (de 3 a 15)</p>
-			<input id="numJugadores" class="input1" type="number" min="3" max="15" value="3">
-			<button id="crearPartida" class="btn1" onclick="creaPartida()">Crear partida</button>
-		</div>
-	</div>
-	<!-- Crear jugadores -->
-	<div id="crear-jugadores" class="oculto">
-    	<p class="tituloTop">Cartas Contra la Humanidad</p>
-    	</br>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#161616" />
+    <meta
+      name="description"
+      content="Un juego de fiesta para gente horrible. Reúne a tus amigos y juega con un solo dispositivo."
+    />
+    <title>Cartas contra la humanidad · 0.1</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="componentes/cartasPregunta.js"></script>
+    <script defer src="componentes/cartasRespuesta.js"></script>
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="header">
+        <a class="brand" href="index.html" aria-label="Cartas contra la humanidad, inicio">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Cartas contra<br />la humanidad.</span>
+        </a>
+        <span class="header-meta" id="estado-partida">Gente horrible. Buenas noches.</span>
+      </header>
 
-    	<p>Numero de Rondas (de 2 a 10)</p>
-    	<input id="numRondas" class="input1" type="number" min="2" max="10" value="10">
+      <main>
+        <section id="inicio-app" data-screen aria-labelledby="titulo-inicio" class="hero">
+          <div>
+            <p class="eyebrow">El juego de tus peores ideas</p>
+            <h1 id="titulo-inicio" class="hero-title" tabindex="-1">
+              Cartas<br />contra la<br /><span>humanidad.</span>
+            </h1>
+            <p class="intro">
+              Un juego de fiesta para gente horrible.<br />Reúne a tus amigos. Pierde la vergüenza.
+            </p>
+            <form
+              class="setup"
+              onsubmit="
+                event.preventDefault();
+                creaPartida();
+              "
+              novalidate
+            >
+              <label for="numJugadores">¿Cuántos vais a jugar?</label>
+              <input
+                id="numJugadores"
+                class="number-input"
+                type="number"
+                min="3"
+                max="15"
+                step="1"
+                value="3"
+                inputmode="numeric"
+                aria-describedby="ayuda-jugadores error-inicio"
+              />
+              <p id="error-inicio" class="error" role="alert"></p>
+              <button class="button button-primary" type="submit">
+                Preparar partida <span aria-hidden="true">↗</span>
+              </button>
+              <p id="ayuda-jugadores" class="small">
+                3–15 jugadores · Un solo dispositivo · Cero dignidad
+              </p>
+            </form>
+          </div>
+          <div class="hero-deck" aria-hidden="true">
+            <div class="playing-card black-card hero-question">
+              <p class="card-copy">¿Cuál es<br />mi poder<br />secreto?</p>
+              <div class="card-footer">
+                <span>Cartas contra<br />la humanidad.</span><span class="card-symbol">✳</span>
+              </div>
+            </div>
+            <div class="playing-card white-card hero-answer">
+              <p class="card-copy">Tirarse un pedo<br />e irse.</p>
+              <div class="card-footer">
+                <span>Cartas contra<br />la humanidad.</span><span class="card-symbol">✳</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
-    	<div id="formularioJugadores"></div>
-		<button id="crearPartida" class="btn1" onclick="creaJugadores()">Crear partida</button>
-	</div>
-	<!-- Partida -->
-	<div id="pantallaGenerica" class="oculto">
-    	<p class="tituloTop">Cartas Contra la Humanidad</p>
-    	</br>
-    	<div id="divContenido"></div>
-	</div>
-	<!-- Fin partida -->
-	<div id="fin" class="oculto">
-    	<p class="tituloTop">Cartas Contra la Humanidad</p>
-    	</br>
-    	<div id="puntuaciones"></div>
-    	<button class="btn1" onclick="reiniciarJuego()">Nueva partida</button>
-	</div>
+        <section
+          id="crear-jugadores"
+          data-screen
+          hidden
+          class="section-screen"
+          aria-labelledby="titulo-jugadores"
+        >
+          <p class="eyebrow">Antes de perder la dignidad</p>
+          <h1 id="titulo-jugadores" class="screen-title" tabindex="-1">
+            Que nadie se quede fuera.
+          </h1>
+          <p class="intro">Pon nombre a los culpables y decide cuánto va a durar esto.</p>
+          <form
+            onsubmit="
+              event.preventDefault();
+              creaJugadores();
+            "
+            novalidate
+          >
+            <div class="rounds-field">
+              <label for="numRondas">Número de rondas <span class="muted">· de 2 a 10</span></label>
+              <input
+                id="numRondas"
+                type="number"
+                min="2"
+                max="10"
+                step="1"
+                value="10"
+                inputmode="numeric"
+                aria-describedby="error-jugadores"
+              />
+            </div>
+            <div id="formularioJugadores" class="players-grid"></div>
+            <p id="error-jugadores" class="error" role="alert"></p>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="button button-secondary"
+                onclick="muestraPantalla('inicio-app')"
+              >
+                Volver
+              </button>
+              <button type="submit" class="button button-primary">
+                Empezar partida <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+        </section>
 
-	<!-- Carga JS -->
-	<script type="text/javascript" src="main.js"></script>
-	<!-- Carga Componentes -->
-	<script type="text/javascript" src="componentes/cartasPregunta.js"></script>
-	<script type="text/javascript" src="componentes/cartasRespuesta.js"></script>
-</body>
+        <section
+          id="pantallaGenerica"
+          data-screen
+          hidden
+          class="section-screen"
+          aria-label="Partida"
+        >
+          <div id="divContenido"></div>
+        </section>
+
+        <section
+          id="fin"
+          data-screen
+          hidden
+          class="section-screen"
+          aria-label="Clasificación final"
+        >
+          <div id="puntuaciones"></div>
+          <button type="button" class="button button-primary new-game" onclick="reiniciarJuego()">
+            Otra ronda de malas ideas <span aria-hidden="true">↗</span>
+          </button>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>Mal gusto. Buen diseño.</span><span>Juego local · Versión 0.1</span>
+      </footer>
+      <p id="aviso-juego" class="sr-only" role="status" aria-live="polite"></p>
+    </div>
+  </body>
 </html>

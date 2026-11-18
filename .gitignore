@@ -1,0 +1,6 @@
+# Maquetas, estado del servidor y registros de ejecución locales
+.superpowers/
+node_modules/
+coverage/
+playwright-report/
+test-results/
