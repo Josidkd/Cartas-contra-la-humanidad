@@ -4,10 +4,11 @@ import static androidx.test.espresso.web.assertion.WebViewAssertions.webMatches;
 import static androidx.test.espresso.web.sugar.Web.onWebView;
 import static androidx.test.espresso.web.webdriver.DriverAtoms.findElement;
 import static androidx.test.espresso.web.webdriver.DriverAtoms.getText;
-import static androidx.test.espresso.web.webdriver.DriverAtoms.getAttribute;
 import static androidx.test.espresso.web.webdriver.DriverAtoms.webClick;
+import static androidx.test.espresso.web.webdriver.DriverAtoms.webKeys;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
@@ -37,10 +38,22 @@ public class OfflineSmokeTest {
             onWebView()
                 .withElement(findElement(Locator.ID, "titulo-jugadores"))
                 .check(webMatches(getText(), containsString("Que nadie se quede fuera")));
-            onWebView().withElement(findElement(Locator.ID, "nombre-1"))
-                .check(webMatches(getAttribute("id"), equalTo("nombre-1")));
-            onWebView().withElement(findElement(Locator.ID, "nombre-3"))
-                .check(webMatches(getAttribute("id"), equalTo("nombre-3")));
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, "label[for='nombre-1']"))
+                .check(webMatches(getText(), containsString("Jugador 01")));
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, "label[for='nombre-3']"))
+                .check(webMatches(getText(), containsString("Jugador 03")));
+            for (int i = 1; i <= 3; i++) {
+                onWebView().withElement(findElement(Locator.ID, "nombre-" + i))
+                    .perform(webKeys("Persona Android " + i));
+            }
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, "#crear-jugadores button[type='submit']"))
+                .perform(webClick());
+            onWebView().withElement(findElement(Locator.ID, "titulo-turno"))
+                .check(webMatches(getText(), containsString("Persona Android 1")));
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, "#divContenido .button-primary"))
+                .perform(webClick());
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, ".question .card-copy"))
+                .check(webMatches(getText(), not(isEmptyString())));
         }
     }
 
