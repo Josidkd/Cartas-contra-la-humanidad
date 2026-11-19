@@ -1,0 +1,123 @@
+name: Android APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality.yml
+    permissions:
+      contents: read
+
+  build-apk:
+    name: signed-apk
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      certificate: ${{ steps.metadata.outputs.certificate }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+      - name: Validate release identity
+        id: metadata
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { version } = require('./package.json');
+          if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Invalid package version');
+          if (process.env.GITHUB_REF_TYPE === 'tag' && process.env.GITHUB_REF_NAME !== 'v' + version) throw new Error('Tag and package version differ');
+          const certificate = fs.readFileSync('android/signing-certificate.sha256', 'utf8').trim();
+          if (!/^[a-f0-9]{64}$/.test(certificate)) throw new Error('Invalid public certificate fingerprint');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\ncertificate=${certificate}\n`);
+          NODE
+      - run: npm ci
+      - run: npm run android:sync
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Restore private signing keystore in runner temp
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          umask 077
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/android-release.p12"
+      - name: Build signed release
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/android-release.p12
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: ./gradlew --no-daemon :app:assembleRelease
+      - name: Delete private keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/android-release.p12"
+      - name: Verify signature, version, assets and checksum
+        env:
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          mkdir -p release-apk
+          APK="release-apk/cartas-contra-la-humanidad-$RELEASE_VERSION.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "$APK"
+          node scripts/verify-apk.cjs "$APK"
+      - name: Upload only verified APK and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: |
+            release-apk/*.apk
+            release-apk/*.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: publish-apk
+    needs: build-apk
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: release-apk
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.build-apk.outputs.version }}
+          RELEASE_CERTIFICATE: ${{ needs.build-apk.outputs.certificate }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release-apk/*.apk release-apk/*.sha256 \
+            --verify-tag \
+            --title "Cartas contra la humanidad $RELEASE_VERSION" \
+            --notes "APK Android firmado para instalar y compartir. Requiere Android 7.0 o posterior. El juego funciona sin conexión. Permite la instalación desde la aplicación que abra el APK; Android o Play Protect pueden mostrar advertencias. Certificado SHA-256: $RELEASE_CERTIFICATE. Incluye checksum SHA-256 del APK."
