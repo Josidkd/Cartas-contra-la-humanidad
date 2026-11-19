@@ -1,8 +1,8 @@
-# Android · APK 0.2.0
+# Android · APK 0.2.1
 
 ## Instalar y compartir
 
-El APK se publica en [GitHub Releases](https://github.com/Josidkd/Cartas-contra-la-humanidad/releases/tag/v0.2.0) como `cartas-contra-la-humanidad-0.2.0.apk`, junto con su suma SHA-256.
+El APK se publica en [GitHub Releases](https://github.com/Josidkd/Cartas-contra-la-humanidad/releases/tag/v0.2.1) como `cartas-contra-la-humanidad-0.2.1.apk`, junto con su suma SHA-256. El tag inicial v0.2.0 se conserva sin sobrescribir; su publicación quedó bloqueada por el verificador de assets.
 
 1. Descarga el APK en el móvil. Requiere **Android 7.0/API 24 o posterior** y Android System WebView/Chrome actualizado.
 2. Ábrelo desde el navegador o la aplicación de archivos.
@@ -16,9 +16,9 @@ El juego funciona sin conexión y se juega compartiendo un dispositivo. No hay c
 ## Integridad y actualizaciones
 
 - ID estable: `io.github.josidkd.cartascontralahumanidad`.
-- Versión: `0.2.0`; Android versionCode: `2`.
+- Versión: `0.2.1`; Android versionCode: `3`.
 - Certificado público esperado: [`android/signing-certificate.sha256`](../android/signing-certificate.sha256).
-- El archivo `.apk.sha256` permite comprobar que la descarga coincide con el APK publicado. Por ejemplo, en PowerShell: `Get-FileHash .\cartas-contra-la-humanidad-0.2.0.apk -Algorithm SHA256`.
+- El archivo `.apk.sha256` permite comprobar que la descarga coincide con el APK publicado. Por ejemplo, en PowerShell: `Get-FileHash .\cartas-contra-la-humanidad-0.2.1.apk -Algorithm SHA256`.
 
 Una futura actualización debe conservar **applicationId y clave de firma**, e incrementar versionCode. No hace falta desinstalar la app si esos requisitos se cumplen. No se promete conservar partidas: esta versión no tiene persistencia.
 

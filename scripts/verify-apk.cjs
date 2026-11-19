@@ -17,6 +17,9 @@ const allowedAssets = new Set([
   'assets/native-bridge.js',
   'assets/capacitor.config.json',
   'assets/capacitor.plugins.json',
+  // Android Gradle Plugin generates these release-only optimization profiles.
+  'assets/dexopt/baseline.prof',
+  'assets/dexopt/baseline.profm',
 ]);
 
 function validateApkMetadata(actual, expected) {

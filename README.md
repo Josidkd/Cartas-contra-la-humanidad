@@ -1,4 +1,4 @@
-# Cartas contra la humanidad · 0.2.0
+# Cartas contra la humanidad · 0.2.1
 
 Juego local para **3–15 jugadores** que comparten un dispositivo. Preguntas negras, respuestas blancas y una clasificación de dudoso honor.
 
@@ -8,7 +8,7 @@ Abre `index.html` en tu navegador. La aplicación no requiere compilación, inst
 
 ## Android
 
-La versión 0.2 añade un APK firmado para Android 7.0 o posterior, con System WebView actualizado. Descarga el instalador desde [GitHub Releases](https://github.com/Josidkd/Cartas-contra-la-humanidad/releases/tag/v0.2.0).
+La versión 0.2 añade un APK firmado para Android 7.0 o posterior, con System WebView actualizado. Descarga el instalador desde [GitHub Releases](https://github.com/Josidkd/Cartas-contra-la-humanidad/releases/tag/v0.2.1).
 
 Consulta [docs/android.md](docs/android.md) para instalación, firma, actualizaciones, copia de seguridad y compilación. La app reutiliza el mismo juego offline; no requiere Google Play ni servicios externos.
 

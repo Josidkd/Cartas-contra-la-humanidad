@@ -35,6 +35,14 @@ function metadata() {
 test('APK validation accepts the expected version, certificate and bundled public assets', () => {
   assert.doesNotThrow(() => validateApkMetadata(metadata(), expected));
 });
+
+test('APK validation accepts only the standard Android release baseline profiles', () => {
+  const release = metadata();
+  release.files.push('assets/dexopt/baseline.prof', 'assets/dexopt/baseline.profm');
+  assert.doesNotThrow(() => validateApkMetadata(release, expected));
+  release.files.push('assets/dexopt/private.txt');
+  assert.throws(() => validateApkMetadata(release, expected), /asset|autorizado/i);
+});
 for (const [name, change, error] of [
   [
     'wrong app ID',

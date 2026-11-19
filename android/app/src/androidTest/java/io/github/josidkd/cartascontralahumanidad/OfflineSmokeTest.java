@@ -12,7 +12,11 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
+import android.os.Build;
+import android.app.KeyguardManager;
 import android.os.ParcelFileDescriptor;
+import android.os.PowerManager;
+import android.util.Log;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import androidx.test.core.app.ActivityScenario;
@@ -34,8 +38,35 @@ public class OfflineSmokeTest {
         runShell("input keyevent KEYCODE_WAKEUP");
         runShell("wm dismiss-keyguard");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
-            assertTrue("Bundled game did not become visible and focused within 20 seconds", waitForHome(scenario));
+            scenario.onActivity(activity -> {
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                if (Build.VERSION.SDK_INT >= 27) {
+                    activity.setShowWhenLocked(true);
+                    activity.setTurnScreenOn(true);
+                } else {
+                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+                }
+                if (Build.VERSION.SDK_INT >= 26) {
+                    KeyguardManager keyguard = activity.getSystemService(KeyguardManager.class);
+                    keyguard.requestDismissKeyguard(activity, null);
+                }
+            });
+            boolean ready = waitForHome(scenario);
+            if (!ready) {
+                scenario.onActivity(activity -> {
+                    WebView webView = activity.getBridge().getWebView();
+                    Log.e("OfflineSmoke", "activityFocus=" + activity.hasWindowFocus()
+                        + " webFocus=" + webView.hasWindowFocus()
+                        + " shown=" + webView.isShown()
+                        + " attached=" + webView.isAttachedToWindow()
+                        + " keyguard=" + activity.getSystemService(KeyguardManager.class).isKeyguardLocked()
+                        + " interactive=" + activity.getSystemService(PowerManager.class).isInteractive()
+                        + " url=" + webView.getUrl());
+                });
+            }
+            assertTrue("Bundled game did not become visible and focused within 20 seconds", ready);
             onWebView()
                 .withElement(findElement(Locator.ID, "titulo-inicio"))
                 .check(webMatches(getText(), containsString("humanidad")));
