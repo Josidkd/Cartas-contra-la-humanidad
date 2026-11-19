@@ -12,10 +12,14 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
+import android.os.ParcelFileDescriptor;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.espresso.web.webdriver.Locator;
+import androidx.test.platform.app.InstrumentationRegistry;
+import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,8 +31,11 @@ import org.junit.runner.RunWith;
 public class OfflineSmokeTest {
     @Test
     public void packagedGameStartsAndOpensConfigurationWithoutNetwork() throws Exception {
+        runShell("input keyevent KEYCODE_WAKEUP");
+        runShell("wm dismiss-keyguard");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue("Bundled game did not load within 20 seconds", waitForHome(scenario));
+            scenario.onActivity(activity -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+            assertTrue("Bundled game did not become visible and focused within 20 seconds", waitForHome(scenario));
             onWebView()
                 .withElement(findElement(Locator.ID, "titulo-inicio"))
                 .check(webMatches(getText(), containsString("humanidad")));
@@ -57,6 +64,14 @@ public class OfflineSmokeTest {
         }
     }
 
+    private void runShell(String command) throws Exception {
+        try (InputStream output = new ParcelFileDescriptor.AutoCloseInputStream(
+                InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(command))) {
+            byte[] buffer = new byte[256];
+            while (output.read(buffer) != -1) { /* Wait for completion without logging shell output. */ }
+        }
+    }
+
     private boolean waitForHome(ActivityScenario<MainActivity> scenario) throws Exception {
         long deadline = SystemClock.elapsedRealtime() + 20000;
         while (SystemClock.elapsedRealtime() < deadline) {
@@ -64,10 +79,11 @@ public class OfflineSmokeTest {
             AtomicBoolean ready = new AtomicBoolean(false);
             scenario.onActivity(activity -> {
                 WebView webView = activity.getBridge().getWebView();
+                boolean focused = webView.hasWindowFocus();
                 webView.evaluateJavascript(
                     "Boolean(document.getElementById('numJugadores'))",
                     value -> {
-                        ready.set("true".equals(value));
+                        ready.set(focused && "true".equals(value));
                         evaluated.countDown();
                     }
                 );
